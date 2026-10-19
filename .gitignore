@@ -1,0 +1,20 @@
+# model weights and converted models
+checkpoints/
+*.mlpackage
+*.mlmodel
+*.ckpt
+*.pt
+*.pth
+
+# photos and generated images
+*.jpg
+*.jpeg
+*.png
+
+# logs (they contain local paths)
+*_out.txt
+
+.env
+.venv/
+.DS_Store
+__pycache__/
