@@ -19,9 +19,20 @@ This repo holds only my scripts. Meta's code and weights are not included and ha
 
         hf download facebook/sam-3d-body-dinov3 --local-dir checkpoints/sam-3d-body-dinov3
 
-4. Run a script:
+4. Create a `.env` file in this folder (it is git-ignored) with the two paths:
 
-        PYTHONPATH=../sam-3d-body SAM3D_CKPT_DIR=checkpoints/sam-3d-body-dinov3 python test_head_pose.py
+        PYTHONPATH=../sam-3d-body
+        SAM3D_CKPT_DIR=checkpoints/sam-3d-body-dinov3
+
+## Run
+
+In every new terminal, from this folder, activate the environment and load `.env`:
+
+    source .venv/bin/activate && set -a && source .env && set +a
+
+Then run a script:
+
+    python test_head_pose.py
 
 ## Scripts
 
