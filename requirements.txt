@@ -1,9 +1,11 @@
-# Python 3.11. Only torch and coremltools are pinned, the two versions seen working here.
+# Python 3.11. torch, coremltools and roma are pinned: the conversion patches depend on their internals
+# (coremltools' converter functions, roma's rotation code), so other versions may need the patches adjusted.
 torch==2.14.1
 torchvision
 coremltools==9.0
 numpy
 opencv-python
+pillow  # e2e_mac.py draws the keypoints on the photo
 huggingface_hub
 
 # Meta's SAM 3D Body dependencies (from its INSTALL.md)
@@ -23,7 +25,7 @@ pyrootutils
 webdataset
 chump
 networkx==3.2.1
-roma
+roma==1.6.1  # patches 29 and 33 replace two of its functions
 joblib
 seaborn
 wandb
