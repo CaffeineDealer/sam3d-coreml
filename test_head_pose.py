@@ -551,6 +551,8 @@ def _reroute_alias_writes(graph):
         done += 1
     print("ALIAS-WRITES rerouted", done, "skipped", skipped, "inside if/loop blocks (not touched)", _count_writes(graph.block()) - top)
 
+# Patches 29 and 33 are adapted from RoMa (https://github.com/naver/roma), Copyright (c) 2020 NAVER Corp.,
+# BSD-3-Clause license (see RoMa's LICENSE; RoMa in turn adapts these conversions from SciPy, BSD-3-Clause).
 # --- patch 29: roma.rotmat_to_unitquat picks its formula with nonzero() and writes quat[ind, k] = ... into views; the trace bakes in
 #     the branch of the traced input and coremltools loses the view writes. Same math, all 4 candidates, chosen by mask ---
 import roma
@@ -598,7 +600,7 @@ def _split_inplace_arith(graph):
         cp = graph.create("aten::copy_", [view, f.output(), no.output()])  # write the result back into the view
         cp.output().setType(view.type())
         cp.insertBefore(n)
-        n.output().replaceAllUsesWith(cp.output())
+        n.output().replaceAllUsesWith(f.output())  # later readers get the new slice values (what the in-place op returned), not the whole tensor
         n.destroy()
         done += 1
     print("INPLACE-ARITH split", done)
@@ -621,6 +623,7 @@ def _drop_noop_to(graph):
         done += 1
     print("NOOP-TO dropped", done)
 
+# (adapted from RoMa's unitquat_to_euler, Copyright (c) 2020 NAVER Corp., BSD-3-Clause; see the note above patch 29)
 # --- patch 33: roma.unitquat_to_euler (used by rotmat_to_euler for global_rot) fixes singular cases with angles[k][mask] = ... and
 #     wraps angles with foo[foo < -pi] += 2*pi: the trace bakes in which elements the trace input changed, so the converted model
 #     only fits inputs like the traced one (other inputs fail on the CPU). Same steps, every masked write as torch.where ---
@@ -672,6 +675,7 @@ roma.unitquat_to_euler = _unitquat_to_euler  # and other callers through the pac
 
 
     # --- patch 7: Meta's batchXYZfrom6D assigns out_euler[..., k] in place; rebuild it with torch.stack instead ---
+    # (same math as Meta's batchXYZfrom6D in sam-3d-body, sam_3d_body/models/modules/mhr_utils.py, rewritten without in-place writes)
 import torch.nn.functional as F
 import sam_3d_body.models.modules.mhr_utils as _mu
 
